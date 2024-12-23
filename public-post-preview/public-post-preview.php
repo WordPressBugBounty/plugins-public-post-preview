@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Public Post Preview
- * Version: 3.0.0
+ * Version: 3.0.1
  * Description: Allow anonymous users to preview a post before it is published.
  * Author: Dominik Schilling
  * Author URI: https://dominikschilling.de/
@@ -767,7 +767,8 @@ class DS_Public_Post_Preview {
 	 * @return int The time-dependent variable.
 	 */
 	private static function nonce_tick() {
-		$nonce_life = apply_filters( 'ppp_nonce_life', get_option( 'public_post_preview_expiration_time' ) ?: 48 );
+		$expiration = get_option( 'public_post_preview_expiration_time' ) ?: 48;
+		$nonce_life = apply_filters( 'ppp_nonce_life', $expiration * HOUR_IN_SECONDS );
 
 		return ceil( time() / ( $nonce_life / 2 ) );
 	}
