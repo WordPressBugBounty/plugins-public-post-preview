@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Public Post Preview
- * Version: 3.1.0
+ * Version: 3.1.2
  * Description: Allow anonymous users to preview a post before it is published.
  * Author: Dominik Schilling
  * Author URI: https://dominikschilling.de/
@@ -11,6 +11,7 @@
  * Tested up to: 7.0
  * Requires PHP: 8.0
  * License: GPLv2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  *
  * Previously (2009-2011) maintained by Jonathan Dingman and Matt Martz.
  *
@@ -730,6 +731,23 @@ class DS_Public_Post_Preview {
 		if ( self::is_public_preview_available( $post_id ) ) {
 			// Set post status to publish so that it's visible.
 			$posts[0]->post_status = 'publish';
+
+			// Allow Block Bindings sources to resolve for this post.
+			add_filter(
+				'map_meta_cap',
+				static function( $caps, $cap, $user_id, $args ) use ( $post_id ) {
+					if (
+						'read_post' === $cap &&
+						isset( $args[0] ) &&
+						(int) $args[0] === $post_id
+					) {
+						return [ 'exist' ];
+					}
+					return $caps;
+				},
+				10,
+				4
+			);
 
 			// Disable comments and pings for this post.
 			add_filter( 'comments_open', '__return_false' );
